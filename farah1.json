@@ -103,7 +103,7 @@
   },
   {
     "id": "q2",
-    "text": "",
+    "text": "Find the initial population and growth constant based on the table provided in the diagram.",
     "questionImageUrl": "https://i.ibb.co/9mbWN5hx/q2q.png",
     "solutionImageUrl": "https://i.ibb.co/ksqyKxYY/q2.jpg",
     "finalAnswers": [
@@ -121,100 +121,83 @@
       }
     ],
     "steps": [
-  {
-    "id": "step1",
-    "region": {
-      "x": 0.158,
-      "y": 0.007,
-      "w": 0.692,
-      "h": 0.139
-    },
-    "tips": [
-      "In modeling questions, always identify the parameters and what each variable represents before solving"
-    ],
-    "gates": [
       {
-        "type": "",
-        "question": "",
-        "correctFeedback": "",
-        "wrongFeedback": "",
-        "correct": false
-      }
-    ]
-  },
-  {
-    "id": "step2",
-    "region": {
-      "x": 0.16,
-      "y": 0.157,
-      "w": 0.737,
-      "h": 0.109
-    },
-    "tips": [],
-    "gates": [
-      {
-        "type": "MCQ",
-        "question": "What does A represent?",
-        "correctFeedback": "Correct!",
-        "wrongFeedback": "Try again.",
-        "options": [
-          "Initial Value",
-          "rate",
-          "factor"
+        "id": "step1",
+        "region": {
+          "x": 0.158,
+          "y": 0.007,
+          "w": 0.692,
+          "h": 0.139
+        },
+        "tips": [
+          "In modeling questions, always identify the parameters and what each variable represents before solving"
         ],
-        "correctIndex": 0
+        "gates": []
       },
       {
-        "type": "TF",
-        "question": "Do you have the initial value from the table?",
-        "correctFeedback": "Correct!",
-        "wrongFeedback": "P at t = 0 is the initial value",
-        "correct": true
-      }
-    ]
-  },
-  {
-    "id": "step3",
-    "region": {
-      "x": 0.163,
-      "y": 0.273,
-      "w": 0.819,
-      "h": 0.427
-    },
-    "tips": [
-      "Don't forget that you can substitute with any point in the model at any time - this solves many problems"
-    ],
-    "gates": [
+        "id": "step2",
+        "region": {
+          "x": 0.16,
+          "y": 0.157,
+          "w": 0.737,
+          "h": 0.109
+        },
+        "tips": [],
+        "gates": [
+          {
+            "type": "MCQ",
+            "question": "What does A represent?",
+            "correctFeedback": "Correct!",
+            "wrongFeedback": "Try again.",
+            "options": [
+              "Initial Value",
+              "Rate",
+              "Growth Factor"
+            ],
+            "correctIndex": 0
+          },
+          {
+            "type": "MCQ",
+            "question": "Do you have the initial value from the table?",
+            "correctFeedback": "Correct!",
+            "wrongFeedback": "P at t = 0 is the initial value.",
+            "options": ["Yes", "No"],
+            "correctIndex": 0
+          }
+        ]
+      },
       {
-        "type": "",
-        "question": "",
-        "correctFeedback": "",
-        "wrongFeedback": "",
-        "correct": false
-      }
-    ]
-  },
-  {
-    "id": "step4",
-    "region": {
-      "x": 0.087,
-      "y": 0.715,
-      "w": 0.888,
-      "h": 0.256
-    },
-    "tips": [
-      "Use GDC to ensure you have graphed correctly."
-    ],
-    "gates": [
+        "id": "step3",
+        "region": {
+          "x": 0.163,
+          "y": 0.273,
+          "w": 0.819,
+          "h": 0.427
+        },
+        "tips": [
+          "Don't forget that you can substitute with any point in the model at any time - this solves many problems"
+        ],
+        "gates": [
+          {
+            "type": "SelfCheck",
+            "question": "Can you use the table values to solve for the growth constant k?",
+            "revealText": "Substitute t=2 and P=20 into the formula P = A*e^(kt) with A=10."
+          }
+        ]
+      },
       {
-        "type": "",
-        "question": "",
-        "correctFeedback": "",
-        "wrongFeedback": "",
-        "correct": false
+        "id": "step4",
+        "region": {
+          "x": 0.087,
+          "y": 0.715,
+          "w": 0.888,
+          "h": 0.256
+        },
+        "tips": [
+          "Use GDC to ensure you have graphed correctly."
+        ],
+        "gates": []
       }
     ]
-  }
-]
   }
 ]

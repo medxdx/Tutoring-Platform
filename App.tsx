@@ -4,7 +4,8 @@ import {
   Question,
   QuestionResult, 
   SessionReport, 
-  StepInteraction 
+  StepInteraction,
+  Gate
 } from './types';
 import { SESSION_BASE_URL } from './constants';
 
@@ -73,7 +74,7 @@ const App: React.FC = () => {
       setIsLanding(false);
       setSessionStartTime(Date.now());
     } catch (err: any) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : 'Unknown error');
     } finally { setLoading(false); }
   };
 
@@ -93,7 +94,7 @@ const App: React.FC = () => {
     setIsStepPausedForFix(false);
     setFirstTryResults(null);
     setStepInteractions(currentQuestion.steps.map(s => ({ stepId: s.id, attemptsBeforeCorrect: 0, wasFixed: false, completed: false })));
-  }, [currentIdx, questions]);
+  }, [currentIdx, questions, currentQuestion]);
 
   const handleInputChange = (id: string, value: string) => setUserAnswers(prev => ({ ...prev, [id]: value }));
 
@@ -102,7 +103,7 @@ const App: React.FC = () => {
     let correctCount = 0;
     const totalCount = currentQuestion.finalAnswers.length;
     
-    const currentResults = currentQuestion.finalAnswers.map(ans => {
+    const currentResults: QuestionResult['finalAnswersStatus'] = currentQuestion.finalAnswers.map(ans => {
       const inputVal = parseFloat(userAnswers[ans.id] || '');
       const isCorrect = !isNaN(inputVal) && Math.abs(inputVal - ans.value) <= ans.tolerance;
       if (isCorrect) correctCount++;
@@ -144,8 +145,11 @@ const App: React.FC = () => {
 
   const handleGateChoice = (choiceIndex: number) => {
     if (!currentQuestion) return;
-    const gate = currentQuestion.steps[currentStepIdx].gates![currentGateIdx];
-    if (gate.type === 'MCQ') {
+    const gates = currentQuestion.steps[currentStepIdx]?.gates;
+    if (!gates) return;
+    
+    const gate = gates[currentGateIdx];
+    if (gate && gate.type === 'MCQ') {
       const isCorrect = choiceIndex === gate.correctIndex;
       if (isCorrect) {
         setGateFeedback({ msg: gate.correctFeedback || 'Correct!', type: 'success' });
@@ -186,7 +190,11 @@ const App: React.FC = () => {
   };
 
   const downloadReport = () => {
-    const report: SessionReport = { timestamp: new Date().toISOString(), totalTimeSeconds: Math.floor((Date.now() - sessionStartTime) / 1000), questions: sessionResults };
+    const report: SessionReport = { 
+      timestamp: new Date().toISOString(), 
+      totalTimeSeconds: Math.floor((Date.now() - sessionStartTime) / 1000), 
+      questions: sessionResults 
+    };
     const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
