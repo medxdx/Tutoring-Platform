@@ -51,7 +51,7 @@ const App: React.FC = () => {
   const [isStepPausedForFix, setIsStepPausedForFix] = useState(false);
   const [firstTryResults, setFirstTryResults] = useState<QuestionResult['finalAnswersStatus'] | null>(null);
 
-  const resolveAssetUrl = (path: string | undefined) => {
+  const resolveAssetUrl = (path: string | undefined): string => {
     if (!path) return "";
     if (path.startsWith('http') || path.startsWith('data:')) return path;
     const cleanPath = path.replace(/^\.\//, '');
@@ -77,7 +77,7 @@ const App: React.FC = () => {
     } finally { setLoading(false); }
   };
 
-  const currentQuestion = questions[currentIdx];
+  const currentQuestion: Question | undefined = questions[currentIdx];
 
   useEffect(() => {
     if (!currentQuestion) return;
@@ -132,6 +132,7 @@ const App: React.FC = () => {
   };
 
   const completeQuestion = (finalStatus: QuestionResult['finalAnswersStatus']) => {
+    if (!currentQuestion) return;
     const result: QuestionResult = {
       questionId: currentQuestion.id,
       timeTakenSeconds: Math.floor((Date.now() - questionStartTime) / 1000),
@@ -142,14 +143,15 @@ const App: React.FC = () => {
   };
 
   const handleGateChoice = (choiceIndex: number) => {
+    if (!currentQuestion) return;
     const gate = currentQuestion.steps[currentStepIdx].gates![currentGateIdx];
     if (gate.type === 'MCQ') {
       const isCorrect = choiceIndex === gate.correctIndex;
       if (isCorrect) {
-        setGateFeedback({ msg: gate.correctFeedback, type: 'success' });
+        setGateFeedback({ msg: gate.correctFeedback || 'Correct!', type: 'success' });
         setTimeout(() => { setGateFeedback({ msg: '', type: null }); setCurrentGateIdx(prev => prev + 1); }, 1500);
       } else {
-        setGateFeedback({ msg: gate.wrongFeedback, type: 'error' });
+        setGateFeedback({ msg: gate.wrongFeedback || 'Try again!', type: 'error' });
         setStepInteractions(prev => prev.map((si, i) => i === currentStepIdx ? { ...si, attemptsBeforeCorrect: si.attemptsBeforeCorrect + 1 } : si));
       }
     }
@@ -164,6 +166,7 @@ const App: React.FC = () => {
   };
 
   const moveToNextStep = () => {
+    if (!currentQuestion) return;
     setIsStepPausedForFix(false);
     setShowFixPrompt(false);
     if (currentStepIdx < currentQuestion.steps.length - 1) {
@@ -223,9 +226,10 @@ const App: React.FC = () => {
     );
   }
 
-  const currentStep = currentQuestion?.steps[currentStepIdx];
+  if (!currentQuestion) return null;
+
+  const currentStep = currentQuestion.steps[currentStepIdx];
   const isWaitingForSelfReport = currentStep && (!currentStep.gates || currentGateIdx >= currentStep.gates.length);
-  // Reverted: Layout only expands when guidance or solution is active
   const isRevealedLayout = isGuidanceActive || isSolutionRevealed;
 
   return (
@@ -243,7 +247,7 @@ const App: React.FC = () => {
       </div>
 
       <div className={`max-w-[1800px] mx-auto relative ${isRevealedLayout ? 'grid grid-cols-1 lg:grid-cols-12 gap-8' : 'flex justify-center'}`}>
-        {/* Main Column: Problem & Submit (Problem is left when revealed, center when hidden) */}
+        {/* Main Column: Problem & Submit */}
         <div className={`flex flex-col gap-8 transition-all duration-700 ${isRevealedLayout ? 'lg:col-span-4 w-full' : 'max-w-3xl w-full'}`}>
           <section className="bg-[#171a21] border border-[#2a2f3a] rounded-[32px] p-8 shadow-xl relative overflow-hidden">
             <div className="absolute top-0 left-0 w-1 h-full bg-[#5da9ff]" />
@@ -288,7 +292,7 @@ const App: React.FC = () => {
           </section>
         </div>
 
-        {/* Middle Column: Guidance (Only shows if incorrect/partial) */}
+        {/* Middle Column: Guidance */}
         {isRevealedLayout && (
           <div className="lg:col-span-4 h-full animate-in slide-in-from-right-8 duration-500">
             <div className="bg-[#171a21] border border-[#2a2f3a] rounded-[32px] p-8 h-full shadow-xl flex flex-col gap-6 sticky top-8 max-h-[90vh] overflow-y-auto custom-scrollbar">
@@ -375,7 +379,7 @@ const App: React.FC = () => {
           </div>
         )}
 
-        {/* Right Column: Visual Solution (Only shows if incorrect/partial) */}
+        {/* Right Column: Visual Solution */}
         {isRevealedLayout && (
           <div className="lg:col-span-4 transition-all duration-700 animate-in slide-in-from-right-16">
             <div className="relative bg-[#0f1115] rounded-[32px] border-2 border-[#2a2f3a] shadow-2xl overflow-hidden group min-h-[300px]">
