@@ -4,8 +4,7 @@ import {
   Question,
   QuestionResult, 
   SessionReport, 
-  StepInteraction,
-  Gate
+  StepInteraction 
 } from './types';
 import { SESSION_BASE_URL } from './constants';
 
@@ -56,7 +55,9 @@ const App: React.FC = () => {
     if (!path) return "";
     if (path.startsWith('http') || path.startsWith('data:')) return path;
     const cleanPath = path.replace(/^\.\//, '');
-    return `${SESSION_BASE_URL}${cleanPath}`;
+    // Using a more robust path join for deployment environments
+    const base = SESSION_BASE_URL.endsWith('/') ? SESSION_BASE_URL : `${SESSION_BASE_URL}/`;
+    return `${base}${cleanPath}`;
   };
 
   const startSession = async (e?: React.FormEvent) => {
@@ -68,13 +69,13 @@ const App: React.FC = () => {
     try {
       const fileName = cleanCode === 'demo' ? 'questions.json' : `${cleanCode}.json`;
       const res = await fetch(`${SESSION_BASE_URL}${fileName}`);
-      if (!res.ok) throw new Error(`Code "${sessionCode.toUpperCase()}" not found.`);
+      if (!res.ok) throw new Error(`Session "${sessionCode.toUpperCase()}" not found on server. Ensure the JSON file is in the public directory.`);
       const data = await res.json();
       setQuestions(data);
       setIsLanding(false);
       setSessionStartTime(Date.now());
     } catch (err: any) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      setError(err instanceof Error ? err.message : 'Unknown connection error');
     } finally { setLoading(false); }
   };
 
@@ -216,7 +217,7 @@ const App: React.FC = () => {
             <input type="text" value={sessionCode} onChange={(e) => setSessionCode(e.target.value)} placeholder="Session Code" className="w-full bg-[#171a21]/50 border-2 border-[#2a2f3a] rounded-3xl px-8 py-6 text-2xl font-black text-center text-white tracking-[0.1em] focus:border-[#5da9ff] transition-all uppercase" />
             <button type="submit" disabled={loading || !sessionCode} className="w-full bg-white text-black font-black py-6 rounded-3xl text-xl hover:scale-[1.02] active:scale-0.98 transition-all disabled:opacity-30">{loading ? 'CONNECTING...' : 'START SESSION'}</button>
           </form>
-          {error && <div className="mt-4 text-red-400 font-bold">⚠️ {error}</div>}
+          {error && <div className="mt-4 text-red-400 font-bold bg-red-500/10 p-4 rounded-2xl border border-red-500/20">⚠️ {error}</div>}
         </div>
       </div>
     );
@@ -261,12 +262,15 @@ const App: React.FC = () => {
             <div className="absolute top-0 left-0 w-1 h-full bg-[#5da9ff]" />
             <h2 className="text-[#5da9ff] uppercase text-[10px] font-black mb-6 tracking-widest">Problem Statement</h2>
             <MathContent html={currentQuestion.text} className="text-xl leading-relaxed mb-4" />
+            
+            {/* Added Image Support for Main Question */}
             {currentQuestion.questionImageUrl && (
-              <div className="mt-4 bg-[#0f1115]/50 rounded-2xl overflow-hidden min-h-[100px] border border-[#2a2f3a]">
+              <div className="mt-6 bg-[#0f1115]/50 rounded-2xl overflow-hidden border border-[#2a2f3a] shadow-inner">
                 <img 
                   src={resolveAssetUrl(currentQuestion.questionImageUrl)} 
                   alt="Question Diagram"
-                  className="w-full h-auto shadow-2xl" 
+                  className="w-full h-auto object-contain max-h-[400px]"
+                  loading="lazy"
                 />
               </div>
             )}
@@ -312,6 +316,13 @@ const App: React.FC = () => {
                   <p className="text-sm font-bold text-white">Conceptual Breakdown</p>
                 </div>
 
+                {/* Added Image Support for Step */}
+                {currentStep?.imageUrl && (
+                  <div className="bg-[#0f1115]/50 rounded-2xl overflow-hidden border border-[#2a2f3a] mb-4">
+                    <img src={resolveAssetUrl(currentStep.imageUrl)} alt="Step Diagram" className="w-full h-auto" />
+                  </div>
+                )}
+
                 {currentStep?.gates?.map((gate, gIdx) => {
                   if (gIdx > currentGateIdx) return null;
                   const isSolved = gIdx < currentGateIdx;
@@ -322,6 +333,13 @@ const App: React.FC = () => {
                         <span className="text-[10px] uppercase font-black text-[#a0a4b8]">Check {gIdx + 1}</span>
                       </div>
                       
+                      {/* Added Image Support for Gate */}
+                      {gate.imageUrl && !isSolved && (
+                        <div className="bg-[#0f1115]/50 rounded-xl overflow-hidden border border-[#2a2f3a] mb-4">
+                          <img src={resolveAssetUrl(gate.imageUrl)} alt="Check Diagram" className="w-full h-auto" />
+                        </div>
+                      )}
+
                       <MathContent html={gate.question} className="mb-6 text-lg font-medium" />
 
                       {gate.type === 'MCQ' ? (

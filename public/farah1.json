@@ -1,0 +1,203 @@
+
+[
+  {
+    "id": "q1",
+    "text": "The weight of a radioactive substance after $t$ years is given by $W = 1500 \\cdot (0.993)^t$ grams.<br><br> (a) Find the original amount of radioactive material.<br><br> (b) Find the amount of radioactive material remaining after<br><br> (i) 400 years, (ii) 800 years<br><br> (c) Sketch the graph of $W$ against $t$<br><br> (d) Hence find the time taken for the weight to reduce to $100$ grams.",
+    "finalAnswers": [
+      {
+        "id": "a",
+        "label": "Original Amount",
+        "value": 1500,
+        "tolerance": 0
+      },
+      {
+        "id": "bi",
+        "label": "Amount of radioactive materials after 400 years",
+        "value": 90.3,
+        "tolerance": 0.1
+      },
+      {
+        "id": "bii",
+        "label": "Amount of radioactive materials after 800 years",
+        "value": 5.44,
+        "tolerance": 0.05
+      },
+      {
+        "id": "d",
+        "label": "Time Taken for the weight to reduce to 100 grams",
+        "value": 385.5,
+        "tolerance": 0.2
+      }
+    ],
+    "solutionImageUrl": "https://i.ibb.co/bRBv3JsK/q1.jpg",
+    "steps": [
+      {
+        "id": "step1",
+        "region": {
+          "x": 0.019,
+          "y": 0.008,
+          "w": 0.939,
+          "h": 0.252
+        },
+        "tips": [
+          "In modeling questions the first thing to do is to know what parameters (A, m, c, k, b, etc) you have and what do they represent"
+        ],
+        "gates": [
+          {
+            "type": "MCQ",
+            "question": "What type of model is used?",
+            "correctFeedback": "Correct!",
+            "wrongFeedback": "What is the first thing that comes to mind when you see the independent variable (x, t, etc) in the exponent?",
+            "options": ["Linear", "Exponential", "Quadratic"],
+            "correctIndex": 1
+          }
+        ]
+      },
+      {
+        "id": "step2",
+        "region": {
+          "x": 0.027,
+          "y": 0.268,
+          "w": 0.928,
+          "h": 0.144
+        },
+        "tips": [
+          "Always ask which variable are you looking for and which one do you have a value for"
+        ],
+        "gates": [
+          {
+            "type": "MCQ",
+            "question": "Do we have t or W?",
+            "correctFeedback": "Correct!",
+            "wrongFeedback": "We are looking for the \"amount\". Also take a look at the unit of the 400 and 800",
+            "options": ["t", "W"],
+            "correctIndex": 0
+          }
+        ]
+      },
+      {
+        "id": "step3",
+        "region": {
+          "x": 0.033,
+          "y": 0.418,
+          "w": 0.924,
+          "h": 0.216
+        },
+        "tips": [
+          "Take a look at the domain when sketching. Here it was t>0 so we don't need the negative part."
+        ],
+        "gates": []
+      },
+      {
+        "id": "step4",
+        "region": {
+          "x": 0.033,
+          "y": 0.644,
+          "w": 0.921,
+          "h": 0.331
+        },
+        "tips": [],
+        "gates": []
+      }
+    ]
+  },
+  {
+    "id": "q2",
+    "text": "Find the initial population and growth constant based on the table provided in the diagram.",
+    "questionImageUrl": "https://i.ibb.co/9mbWN5hx/q2q.png",
+    "solutionImageUrl": "https://i.ibb.co/ksqyKxYY/q2.jpg",
+    "finalAnswers": [
+      {
+        "id": "a",
+        "label": "Initial Population (A)",
+        "value": 10,
+        "tolerance": 0
+      },
+      {
+        "id": "b",
+        "label": "Growth Constant (k)",
+        "value": 0.3465,
+        "tolerance": 0.01
+      }
+    ],
+    "steps": [
+      {
+        "id": "step1",
+        "region": {
+          "x": 0.158,
+          "y": 0.007,
+          "w": 0.692,
+          "h": 0.139
+        },
+        "tips": [
+          "In modeling questions, always identify the parameters and what each variable represents before solving"
+        ],
+        "gates": []
+      },
+      {
+        "id": "step2",
+        "region": {
+          "x": 0.16,
+          "y": 0.157,
+          "w": 0.737,
+          "h": 0.109
+        },
+        "tips": [],
+        "gates": [
+          {
+            "type": "MCQ",
+            "question": "What does A represent?",
+            "correctFeedback": "Correct!",
+            "wrongFeedback": "Try again.",
+            "options": [
+              "Initial Value",
+              "Rate",
+              "Growth Factor"
+            ],
+            "correctIndex": 0
+          },
+          {
+            "type": "MCQ",
+            "question": "Do you have the initial value from the table?",
+            "correctFeedback": "Correct!",
+            "wrongFeedback": "P at t = 0 is the initial value.",
+            "options": ["Yes", "No"],
+            "correctIndex": 0
+          }
+        ]
+      },
+      {
+        "id": "step3",
+        "region": {
+          "x": 0.163,
+          "y": 0.273,
+          "w": 0.819,
+          "h": 0.427
+        },
+        "tips": [
+          "Don't forget that you can substitute with any point in the model at any time - this solves many problems"
+        ],
+        "gates": [
+          {
+            "type": "SelfCheck",
+            "question": "Can you use the table values to solve for the growth constant k?",
+            "revealText": "Substitute t=2 and P=20 into the formula P = A*e^(kt) with A=10."
+          }
+        ]
+      },
+      {
+        "id": "step4",
+        "region": {
+          "x": 0.087,
+          "y": 0.715,
+          "w": 0.888,
+          "h": 0.256
+        },
+        "tips": [
+          "Use GDC to ensure you have graphed correctly."
+        ],
+        "gates": []
+      }
+    ]
+  }
+]

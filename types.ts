@@ -9,6 +9,7 @@ export interface Region {
 export interface Gate {
   type: 'MCQ' | 'SelfCheck';
   question: string;
+  imageUrl?: string; // New: Image for specific check
   options?: string[]; // Only for MCQ
   correctIndex?: number; // Only for MCQ
   correctFeedback?: string; // Only for MCQ
@@ -20,6 +21,7 @@ export interface Step {
   id: string;
   region: Region;
   tips: string[];
+  imageUrl?: string; // New: Image for specific step
   gates?: Gate[];
 }
 
