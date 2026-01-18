@@ -9,21 +9,13 @@
     <script>
       window.MathJax = {
         tex: {
-          inlineMath: [["$", "$"], ["\\(", "\\)"]],
+          inlineMath: [
+            ["$", "$"],
+            ["\\(", "\\)"],
+          ],
           displayMath: [["$$", "$$"]],
-          processEscapes: true
         },
-        svg: { 
-          fontCache: "global",
-          scale: 1,
-          minScale: 0.5
-        },
-        options: {
-          enableMenu: false
-        },
-        startup: {
-          typeset: false
-        }
+        svg: { fontCache: "global" },
       };
     </script>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
