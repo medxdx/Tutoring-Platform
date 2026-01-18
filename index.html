@@ -4,17 +4,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tutor Practice Dashboard</title>
+    <title>Tutor Practice Dashboards</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       window.MathJax = {
         tex: {
-          inlineMath: [
-            ["$", "$"],
-            ["\\(", "\\)"],
-          ],
-          displayMath: [["$$", "$$"]], ['\\[', '\\]']]
-        },
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+    processEscapes: true
+  },
+  options: {
+    ignoreHtmlClass: 'tex2jax_ignore',
+    processHtmlClass: 'tex2jax_process'
+  }
         svg: { fontCache: "global" },
       };
     </script>
