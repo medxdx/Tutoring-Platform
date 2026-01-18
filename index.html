@@ -7,17 +7,23 @@
     <title>Tutor Practice Dashboards</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-      window.MathJax = {
+            window.MathJax = {
         tex: {
-    inlineMath: [['$', '$'], ['\\(', '\\)']],
-    displayMath: [['$$', '$$'], ['\\[', '\\]']],
-    processEscapes: true
-  },
-  options: {
-    ignoreHtmlClass: 'tex2jax_ignore',
-    processHtmlClass: 'tex2jax_process'
-  }
-        svg: { fontCache: "global" },
+          inlineMath: [["$", "$"], ["\\(", "\\)"]],
+          displayMath: [["$$", "$$"]],
+          processEscapes: true
+        },
+        svg: { 
+          fontCache: "global",
+          scale: 1,
+          minScale: 0.5
+        },
+        options: {
+          enableMenu: false
+        },
+        startup: {
+          typeset: false
+        }
       };
     </script>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
