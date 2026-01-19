@@ -10,20 +10,28 @@ import { SESSION_BASE_URL } from './constants';
 
 const MathContent: React.FC<{ html: string; className?: string }> = ({ html, className }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const typeset = () => {
-    const node = containerRef.current;
-    if (node && (window as any).MathJax?.typesetPromise) {
-      (window as any).MathJax.typesetPromise([node]).catch((err: any) => console.error(err));
-    }
-  };
+  
   useEffect(() => {
-    typeset();
-    const interval = setInterval(() => {
-      if ((window as any).MathJax?.typesetPromise) { typeset(); clearInterval(interval); }
-    }, 250);
-    return () => clearInterval(interval);
+    if (containerRef.current && (window as any).renderMathInElement) {
+      (window as any).renderMathInElement(containerRef.current, {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "$", right: "$", inline: true },
+          { left: "\\(", right: "\\)", inline: true },
+          { left: "\\[", right: "\\]", display: true }
+        ],
+        throwOnError: false
+      });
+    }
   }, [html]);
-  return <div ref={containerRef} className={`math-container ${className || ''}`} dangerouslySetInnerHTML={{ __html: html }} />;
+
+  return (
+    <div 
+      ref={containerRef} 
+      className={`math-container ${className || ''}`} 
+      dangerouslySetInnerHTML={{ __html: html }} 
+    />
+  );
 };
 
 const App: React.FC = () => {
@@ -101,7 +109,6 @@ const App: React.FC = () => {
 
   const handleInputChange = (id: string, value: string) => {
     setUserAnswers(prev => ({ ...prev, [id]: value }));
-    // Clear validation color when user starts typing again
     if (lastValidationResults) {
       setLastValidationResults(prev => prev ? prev.filter(v => v.answerId !== id) : null);
     }
@@ -360,8 +367,14 @@ const App: React.FC = () => {
                 {currentStep?.gates?.map((gate, gIdx) => {
                   if (gIdx > currentGateIdx) return null;
                   const isSolved = gIdx < currentGateIdx;
+                  
+                  // Keep SelfCheck gates bright even when solved to ensure revealText is visible normally
+                  const stateStyles = isSolved 
+                    ? (gate.type === 'MCQ' ? 'opacity-40 grayscale pointer-events-none' : 'opacity-100')
+                    : 'animate-in fade-in slide-in-from-bottom-4';
+
                   return (
-                    <div key={gIdx} className={`transition-all duration-500 ${isSolved ? 'opacity-40 grayscale pointer-events-none' : 'animate-in fade-in slide-in-from-bottom-4'}`}>
+                    <div key={gIdx} className={`transition-all duration-500 ${stateStyles}`}>
                       <div className="flex items-center gap-2 mb-4">
                         <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${isSolved ? 'bg-green-500 text-black' : 'bg-[#5da9ff] text-black'}`}>{isSolved ? '✓' : gIdx + 1}</span>
                         <span className="text-[10px] uppercase font-black text-[#a0a4b8]">Check {gIdx + 1}</span>
@@ -391,7 +404,7 @@ const App: React.FC = () => {
                               <svg className="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
                             </button>
                           ) : (
-                            <div className="p-5 bg-[#0f1115] border border-green-500/20 rounded-xl text-sm leading-relaxed text-[#4ade80] animate-in slide-in-from-top-2">
+                            <div className="p-5 bg-[#0f1115] border border-green-500/40 rounded-xl text-sm leading-relaxed text-[#4ade80] animate-in slide-in-from-top-2 shadow-[0_0_20px_rgba(74,222,128,0.05)]">
                               <MathContent html={gate.revealText || ''} />
                             </div>
                           )}
