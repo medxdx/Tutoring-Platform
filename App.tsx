@@ -5,7 +5,7 @@ import {
   SessionReport, 
   StepInteraction 
 } from './types';
-import { SESSION_BASE_URL } from './constants';
+import { SESSION_BASE_URL, SESSION_MAPPING_URL } from './constants';
 
 const MathContent: React.FC<{ html: string; className?: string }> = ({ html, className }) => {
   const containerRef = useRef<HTMLSpanElement>(null);
@@ -74,17 +74,48 @@ const App: React.FC = () => {
     if (!cleanCode) return;
     setLoading(true);
     setError(null);
+
     try {
-      const fileName = cleanCode === 'demo' ? 'questions.json' : `${cleanCode}.json`;
-      const res = await fetch(`${SESSION_BASE_URL}${fileName}`);
-      if (!res.ok) throw new Error(`Session "${sessionCode.toUpperCase()}" not found.`);
-      const data = await res.json();
+      // 1. Fetch the mapping gist
+      const mappingRes = await fetch(`${SESSION_MAPPING_URL}?t=${Date.now()}`);
+      if (!mappingRes.ok) throw new Error("Failed to load session mapping.");
+      const mapping = await mappingRes.json();
+
+      // Normalize keys to lowercase for case-insensitive lookup
+      const normalizedMapping = Object.keys(mapping).reduce((acc, k) => {
+        acc[k.toLowerCase()] = mapping[k];
+        return acc;
+      }, {} as Record<string, string>);
+
+      // 2. Resolve the specific question URL
+      let questionsUrl = normalizedMapping[cleanCode];
+      if (!questionsUrl) throw new Error(`Session "${sessionCode.toUpperCase()}" not found in remote mapping.`);
+
+      // 3. Prevent CORS redirect issues by targeting the raw data domain directly
+      if (questionsUrl.includes('gist.github.com')) {
+        // Change domain to bypass redirection which often breaks CORS
+        questionsUrl = questionsUrl.replace('gist.github.com', 'gist.githubusercontent.com');
+        
+        // Ensure /raw is at the end of the path
+        if (!questionsUrl.includes('/raw')) {
+          questionsUrl = questionsUrl.replace(/\/$/, '') + '/raw';
+        }
+      }
+
+      // 4. Fetch the actual question data
+      const questionsRes = await fetch(`${questionsUrl}${questionsUrl.includes('?') ? '&' : '?'}t=${Date.now()}`);
+      if (!questionsRes.ok) throw new Error("Could not load questions from the remote link.");
+      const data = await questionsRes.json();
+
       setQuestions(data);
       setIsLanding(false);
       setSessionStartTime(Date.now());
     } catch (err: any) {
+      console.error("Session load error:", err);
       setError(err instanceof Error ? err.message : 'Connection error');
-    } finally { setLoading(false); }
+    } finally { 
+      setLoading(false); 
+    }
   };
 
   const currentQuestion: Question | undefined = questions[currentIdx];
