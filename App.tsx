@@ -40,6 +40,8 @@ const App: React.FC = () => {
   
   const [sessionResults, setSessionResults] = useState<QuestionResult[]>([]);
   const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
+  const [lastValidationResults, setLastValidationResults] = useState<QuestionResult['finalAnswersStatus'] | null>(null);
+  
   const [isGuidanceActive, setIsGuidanceActive] = useState(false);
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [currentGateIdx, setCurrentGateIdx] = useState(0);
@@ -55,7 +57,6 @@ const App: React.FC = () => {
     if (!path) return "";
     if (path.startsWith('http') || path.startsWith('data:')) return path;
     const cleanPath = path.replace(/^\.\//, '');
-    // Using a more robust path join for deployment environments
     const base = SESSION_BASE_URL.endsWith('/') ? SESSION_BASE_URL : `${SESSION_BASE_URL}/`;
     return `${base}${cleanPath}`;
   };
@@ -69,7 +70,7 @@ const App: React.FC = () => {
     try {
       const fileName = cleanCode === 'demo' ? 'questions.json' : `${cleanCode}.json`;
       const res = await fetch(`${SESSION_BASE_URL}${fileName}`);
-      if (!res.ok) throw new Error(`Session "${sessionCode.toUpperCase()}" not found on server. Ensure the JSON file is in the public directory.`);
+      if (!res.ok) throw new Error(`Session "${sessionCode.toUpperCase()}" not found on server.`);
       const data = await res.json();
       setQuestions(data);
       setIsLanding(false);
@@ -85,6 +86,7 @@ const App: React.FC = () => {
     if (!currentQuestion) return;
     setQuestionStartTime(Date.now());
     setUserAnswers({});
+    setLastValidationResults(null);
     setIsGuidanceActive(false);
     setCurrentStepIdx(0);
     setCurrentGateIdx(0);
@@ -97,7 +99,13 @@ const App: React.FC = () => {
     setStepInteractions(currentQuestion.steps.map(s => ({ stepId: s.id, attemptsBeforeCorrect: 0, wasFixed: false, completed: false })));
   }, [currentIdx, questions, currentQuestion]);
 
-  const handleInputChange = (id: string, value: string) => setUserAnswers(prev => ({ ...prev, [id]: value }));
+  const handleInputChange = (id: string, value: string) => {
+    setUserAnswers(prev => ({ ...prev, [id]: value }));
+    // Clear validation color when user starts typing again
+    if (lastValidationResults) {
+      setLastValidationResults(prev => prev ? prev.filter(v => v.answerId !== id) : null);
+    }
+  };
 
   const validateFinalAnswers = () => {
     if (!currentQuestion) return;
@@ -111,6 +119,7 @@ const App: React.FC = () => {
       return { answerId: ans.id, label: ans.label, isCorrect, userValue: isNaN(inputVal) ? null : inputVal };
     });
 
+    setLastValidationResults(currentResults);
     if (firstTryResults === null) setFirstTryResults(currentResults);
 
     if (correctCount === totalCount) {
@@ -120,7 +129,7 @@ const App: React.FC = () => {
       completeQuestion(firstTryResults || currentResults);
     } else if (correctCount > 0) {
       setFeedback({ 
-        msg: `Partially correct (${correctCount}/${totalCount}). Let's work through the steps together.`, 
+        msg: `Partially correct (${correctCount}/${totalCount}). Review the guided steps.`, 
         type: 'partial' 
       });
       setIsGuidanceActive(true);
@@ -263,7 +272,6 @@ const App: React.FC = () => {
             <h2 className="text-[#5da9ff] uppercase text-[10px] font-black mb-6 tracking-widest">Problem Statement</h2>
             <MathContent html={currentQuestion.text} className="text-xl leading-relaxed mb-4" />
             
-            {/* Added Image Support for Main Question */}
             {currentQuestion.questionImageUrl && (
               <div className="mt-6 bg-[#0f1115]/50 rounded-2xl overflow-hidden border border-[#2a2f3a] shadow-inner">
                 <img 
@@ -284,16 +292,43 @@ const App: React.FC = () => {
               </div>
             )}
             <div className="space-y-4">
-              {currentQuestion.finalAnswers.map(ans => (
-                <div key={ans.id} className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold text-[#a0a4b8] uppercase px-1">{ans.label}</label>
-                  <input type="number" step="any" value={userAnswers[ans.id] || ''} onChange={e => handleInputChange(ans.id, e.target.value)} disabled={isSolutionRevealed} className="bg-[#1f2430] border-2 border-[#2a2f3a] rounded-2xl px-5 py-4 text-white focus:border-[#5da9ff] outline-none font-mono" />
-                </div>
-              ))}
-              <button onClick={validateFinalAnswers} disabled={isSolutionRevealed} className="w-full bg-[#5da9ff] text-[#0f1115] font-black py-5 rounded-2xl mt-4 shadow-lg hover:brightness-110 transition-all">CHECK ANSWERS</button>
+              {currentQuestion.finalAnswers.map(ans => {
+                const validation = lastValidationResults?.find(v => v.answerId === ans.id);
+                const borderClass = validation 
+                  ? (validation.isCorrect ? 'border-green-500 shadow-[0_0_15px_rgba(34,197,94,0.2)]' : 'border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.2)]') 
+                  : 'border-[#2a2f3a]';
+
+                return (
+                  <div key={ans.id} className="flex flex-col gap-1 relative">
+                    <label className="text-[10px] font-bold text-[#a0a4b8] uppercase px-1 flex justify-between">
+                      {ans.label}
+                      {validation && (
+                        <span className={validation.isCorrect ? 'text-green-400' : 'text-red-400'}>
+                          {validation.isCorrect ? '✓ CORRECT' : '✕ INCORRECT'}
+                        </span>
+                      )}
+                    </label>
+                    <input 
+                      type="number" 
+                      step="any" 
+                      value={userAnswers[ans.id] || ''} 
+                      onChange={e => handleInputChange(ans.id, e.target.value)} 
+                      disabled={isSolutionRevealed} 
+                      className={`bg-[#1f2430] border-2 ${borderClass} rounded-2xl px-5 py-4 text-white focus:border-[#5da9ff] outline-none font-mono transition-all duration-300`} 
+                    />
+                  </div>
+                );
+              })}
+              <button 
+                onClick={validateFinalAnswers} 
+                disabled={isSolutionRevealed} 
+                className="w-full bg-[#5da9ff] text-[#0f1115] font-black py-5 rounded-2xl mt-4 shadow-lg hover:brightness-110 active:scale-95 transition-all"
+              >
+                CHECK ANSWERS
+              </button>
             </div>
             {feedback.msg && (
-              <div className={`mt-4 p-4 rounded-xl text-sm font-bold border-2 animate-in fade-in duration-300 ${
+              <div className={`mt-6 p-5 rounded-2xl text-sm font-bold border-2 animate-in slide-in-from-top-4 duration-500 ${
                 feedback.type === 'success' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 
                 feedback.type === 'partial' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' :
                 'bg-red-500/10 text-red-400 border-red-500/20'
@@ -316,7 +351,6 @@ const App: React.FC = () => {
                   <p className="text-sm font-bold text-white">Conceptual Breakdown</p>
                 </div>
 
-                {/* Added Image Support for Step */}
                 {currentStep?.imageUrl && (
                   <div className="bg-[#0f1115]/50 rounded-2xl overflow-hidden border border-[#2a2f3a] mb-4">
                     <img src={resolveAssetUrl(currentStep.imageUrl)} alt="Step Diagram" className="w-full h-auto" />
@@ -333,7 +367,6 @@ const App: React.FC = () => {
                         <span className="text-[10px] uppercase font-black text-[#a0a4b8]">Check {gIdx + 1}</span>
                       </div>
                       
-                      {/* Added Image Support for Gate */}
                       {gate.imageUrl && !isSolved && (
                         <div className="bg-[#0f1115]/50 rounded-xl overflow-hidden border border-[#2a2f3a] mb-4">
                           <img src={resolveAssetUrl(gate.imageUrl)} alt="Check Diagram" className="w-full h-auto" />

@@ -2,7 +2,7 @@
 [
   {
     "id": "q1",
-    "text": "The weight of a radioactive substance after $t$ years is given by $W = 1500 \\cdot (0.993)^t$ grams.<br><br> (a) Find the original amount of radioactive material.<br><br> (b) Find the amount of radioactive material remaining after<br><br> (i) 400 years, (ii) 800 years<br><br> (c) Sketch the graph of $W$ against $t$<br><br> (d) Hence find the time taken for the weight to reduce to $100$ grams.",
+    "text": "The weight of a radioactive substance after $t$ years is given by $$W = 1500 \\cdot (0.993)^t$$ grams.<br><br> (a) Find the original amount of radioactive material.<br><br> (b) Find the amount of radioactive material remaining after<br><br> (i) 400 years, (ii) 800 years<br><br> (c) Sketch the graph of $W$ against $t$<br><br> (d) Hence find the time taken for the weight to reduce to $100$ grams.",
     "finalAnswers": [
       {
         "id": "a",
