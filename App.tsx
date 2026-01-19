@@ -33,6 +33,27 @@ const MathContent: React.FC<{ html: string; className?: string }> = ({ html, cla
   );
 };
 
+/**
+ * A dedicated component for the timer to ensure it ticks continuously
+ * without triggering a full App re-render.
+ */
+const SessionTimer: React.FC<{ startTime: number }> = ({ startTime }) => {
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    // Initial sync
+    setElapsed(Math.floor((Date.now() - startTime) / 1000));
+    
+    const interval = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - startTime) / 1000));
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [startTime]);
+
+  return <>{elapsed}s</>;
+};
+
 const App: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isLanding, setIsLanding] = useState(true);
@@ -76,35 +97,27 @@ const App: React.FC = () => {
     setError(null);
 
     try {
-      // 1. Fetch the mapping gist
       const mappingRes = await fetch(`${SESSION_MAPPING_URL}?t=${Date.now()}`);
       if (!mappingRes.ok) throw new Error("Failed to load session mapping.");
       const mapping = await mappingRes.json();
 
-      // Normalize keys to lowercase for case-insensitive lookup
       const normalizedMapping = Object.keys(mapping).reduce((acc, k) => {
         acc[k.toLowerCase()] = mapping[k];
         return acc;
       }, {} as Record<string, string>);
 
-      // 2. Resolve the specific question URL
       let questionsUrl = normalizedMapping[cleanCode];
-      if (!questionsUrl) throw new Error(`Session "${sessionCode.toUpperCase()}" not found in remote mapping.`);
+      if (!questionsUrl) throw new Error(`Session "${sessionCode.toUpperCase()}" not found. Make sure the code is written correctly.`);
 
-      // 3. Prevent CORS redirect issues by targeting the raw data domain directly
       if (questionsUrl.includes('gist.github.com')) {
-        // Change domain to bypass redirection which often breaks CORS
         questionsUrl = questionsUrl.replace('gist.github.com', 'gist.githubusercontent.com');
-        
-        // Ensure /raw is at the end of the path
         if (!questionsUrl.includes('/raw')) {
           questionsUrl = questionsUrl.replace(/\/$/, '') + '/raw';
         }
       }
 
-      // 4. Fetch the actual question data
       const questionsRes = await fetch(`${questionsUrl}${questionsUrl.includes('?') ? '&' : '?'}t=${Date.now()}`);
-      if (!questionsRes.ok) throw new Error("Could not load questions from the remote link.");
+      if (!questionsRes.ok) throw new Error("Error Loading Questions. Try Again or Contact Me.");
       const data = await questionsRes.json();
 
       setQuestions(data);
@@ -283,7 +296,7 @@ const App: React.FC = () => {
         </div>
         <div className="flex items-center gap-4">
           <div className="bg-[#1f2430] px-4 py-2 rounded-xl border border-[#2a2f3a] font-mono text-sm">
-            <span className="text-[#a0a4b8]">TIMER:</span> {Math.floor((Date.now() - sessionStartTime) / 1000)}s
+            <span className="text-[#a0a4b8]">TIMER:</span> <SessionTimer startTime={sessionStartTime} />
           </div>
           <div className="bg-[#5da9ff] text-black px-5 py-2 rounded-xl font-black text-sm uppercase">Q {currentIdx + 1} / {questions.length}</div>
         </div>
@@ -369,7 +382,6 @@ const App: React.FC = () => {
                   if (gIdx > currentGateIdx) return null;
                   const isSolved = gIdx < currentGateIdx;
                   
-                  // Keep SelfCheck reasoning visible and bright. Only MCQ options get dimmed.
                   const stateStyles = isSolved 
                     ? (gate.type === 'MCQ' ? 'opacity-40 grayscale pointer-events-none' : 'opacity-100')
                     : 'animate-in fade-in slide-in-from-bottom-4';
@@ -424,7 +436,7 @@ const App: React.FC = () => {
                     </div>
                     {!isStepPausedForFix ? (
                       <div className="bg-[#1f2430] p-8 rounded-[32px] border-2 border-dashed border-[#2a2f3a] text-center">
-                        <p className="font-bold text-lg mb-6 text-white">Does your logic match?</p>
+                        <p className="font-bold text-lg mb-6 text-white">Does your answer match?</p>
                         <div className="grid gap-3">
                           <button onClick={() => handleSelfReport(true)} className="py-5 bg-[#4ade80] text-black font-black rounded-2xl hover:brightness-110 transition-all">YES, PROCEED</button>
                           <button onClick={() => handleSelfReport(false)} className="py-5 border-2 border-[#facc15] text-[#facc15] font-black rounded-2xl hover:bg-[#facc15]/10 transition-all">NO, I NEED TO FIX IT</button>
