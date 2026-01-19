@@ -1,4 +1,3 @@
-
 export interface Region {
   x: number;
   y: number;
@@ -9,19 +8,19 @@ export interface Region {
 export interface Gate {
   type: 'MCQ' | 'SelfCheck';
   question: string;
-  imageUrl?: string; // New: Image for specific check
-  options?: string[]; // Only for MCQ
-  correctIndex?: number; // Only for MCQ
-  correctFeedback?: string; // Only for MCQ
-  wrongFeedback?: string; // Only for MCQ
-  revealText?: string; // Only for SelfCheck
+  imageUrl?: string;
+  options?: string[];
+  correctIndex?: number;
+  correctFeedback?: string;
+  wrongFeedback?: string;
+  revealText?: string;
 }
 
 export interface Step {
   id: string;
   region: Region;
   tips: string[];
-  imageUrl?: string; // New: Image for specific step
+  imageUrl?: string;
   gates?: Gate[];
 }
 

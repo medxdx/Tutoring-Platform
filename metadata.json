@@ -1,5 +1,5 @@
 {
   "name": "Smart Tutor Practice Dashboard",
-  "description": "A high-fidelity tutoring application for math and physics, featuring interactive guided support, time-tracking, and detailed session progress reporting for educators.",
+  "description": "A high-fidelity tutoring application for math and physics, featuring interactive guided support and detailed session reporting.",
   "requestFramePermissions": []
 }

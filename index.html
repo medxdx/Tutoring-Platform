@@ -1,18 +1,27 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tutor Practice Dashboard</title>
+    <title>Smart Tutor Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- KaTeX CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
-    <!-- KaTeX Core JS -->
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkU9Wig68ulp6WoLiruMA77D6YUTYfErLIdfK3B95L9O1U2a9X6X27m9/uE5MLv" crossorigin="anonymous"></script>
-    <!-- KaTeX Auto-render Extension -->
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDkn/LCGwoCRzj1NjUtv8K6GihSrNV3Cp9O9F4R2E9K9R8P8X9R8P" crossorigin="anonymous"></script>
+    <!-- MathJax 3 Config -->
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          processEscapes: true
+        },
+        options: {
+          ignoreHtmlClass: 'tex2jax_ignore',
+          processHtmlClass: 'tex2jax_process'
+        },
+        svg: { fontCache: 'global' }
+      };
+    </script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,15 +36,14 @@
       }
       
       .math-container {
-        min-height: 1.5em;
         display: inline;
+        vertical-align: middle;
       }
 
-      /* KaTeX tweaks */
-      .katex-display {
-        margin: 1.5rem 0 !important;
-        overflow-x: auto;
-        overflow-y: hidden;
+      /* Fix MathJax SVG alignment for inline math */
+      mjx-container:not([display="true"]) {
+        display: inline-block !important;
+        vertical-align: -0.125em;
       }
 
       /* Hide spin-buttons for number inputs */
@@ -47,18 +55,6 @@
 
       input[type=number] {
         -moz-appearance: textfield;
-      }
-
-      .layout-transition {
-        transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      @keyframes pulse-subtle {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
-      }
-      .animate-pulse-subtle {
-        animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
       }
 
       ::-webkit-scrollbar {
@@ -76,11 +72,6 @@
         background: #3f4554;
       }
 
-      .prose {
-        max-width: none !important;
-        width: 100% !important;
-      }
-
       img {
         content-visibility: auto;
       }
@@ -88,16 +79,17 @@
   <script type="importmap">
 {
   "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
     "react": "https://esm.sh/react@^19.2.3",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "vite": "https://esm.sh/vite@^7.3.1"
+    "vite": "https://esm.sh/vite@^7.3.1",
+    "@google/genai": "https://esm.sh/@google/genai@^1.37.0"
   }
 }
 </script>
 </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+    <script type="module" src="index.tsx"></script>
   </body>
 </html>
