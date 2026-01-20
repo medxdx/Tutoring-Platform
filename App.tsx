@@ -291,7 +291,6 @@ const App: React.FC = () => {
           <div className="w-10 h-10 bg-gradient-to-tr from-[#5da9ff] to-[#7c3aed] rounded-xl flex items-center justify-center font-black text-white">S</div>
           <div>
             <h1 className="text-lg font-bold leading-none">SmartTutor</h1>
-            <span className="text-[10px] text-[#5da9ff] font-bold uppercase tracking-widest">Physics 101</span>
           </div>
         </div>
         <div className="flex items-center gap-4">
